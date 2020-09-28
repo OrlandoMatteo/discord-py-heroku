@@ -24,7 +24,7 @@ async def on_message(message):
 
     if message.content.startswith('$askHelp'):
         backup["queue"].append({"author":str(message.author),"id":message.author.mention})
-        json.dump(backup,open("backupQueue.json","w"))
+        #json.dump(backup,open("backupQueue.json","w"))
      
         await message.channel.send("you've been added to the queue type $show to view it")
 
