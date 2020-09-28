@@ -29,7 +29,7 @@ async def on_message(message):
         await message.channel.send("you've been added to the queue type $show to view it")
 
     if message.content.startswith('$show'):
-        j=json.load(open("backupQueue.json"))
+        #j=json.load(open("backupQueue.json"))
         textMessage="**Queue** ```Markdown\n \n"
         for i,item in enumerate(backup["queue"]):         
             textMessage+=str(i)+". "+item["author"]+"\n"
@@ -41,7 +41,7 @@ async def on_message(message):
 
     if message.content.startswith("$clear") and isAdmin(str(message.author)):
         tmp = await message.channel.send('Clearing messages...')
-        async for msg in message.channel.history(limit=len(message.channel.history())-1):
+        async for msg in message.channel.history():
             await msg.delete()
         backup["queue"]=[]
         #json.dump(backup,open("backupQueue.json","w"))
