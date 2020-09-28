@@ -6,8 +6,8 @@ client = discord.Client()
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN=os.getenv('ADMIN')
-backup=json.load(open("backupQueue.json"))
-
+#backup=json.load(open("backupQueue.json"))
+backup={"queue": []}
 def isAdmin(user):
     return user==ADMIN
 
@@ -44,12 +44,12 @@ async def on_message(message):
         async for msg in message.channel.history():
             await msg.delete()
         backup["queue"]=[]
-        json.dump(backup,open("backupQueue.json","w"))
+        #json.dump(backup,open("backupQueue.json","w"))
 
     if message.content.startswith("$next") and isAdmin(str(message.author)):
         backup["queue"].pop(0)
         await message.channel.send(backup["queue"][0]["id"]+" It is your turn now 👍")
-        json.dump(backup,open("backupQueue.json","w"))
+        #json.dump(backup,open("backupQueue.json","w"))
 
 
 client.run(TOKEN)
