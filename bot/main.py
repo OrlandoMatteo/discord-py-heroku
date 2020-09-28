@@ -1,16 +1,56 @@
 import os
-from discord.ext import commands
 
-bot = commands.Bot(command_prefix="!")
-TOKEN = os.getenv("DISCORD_TOKEN")
+import discord
+import json
+client = discord.Client()
 
-@bot.event
+TOKEN = os.getenv('DISCORD_TOKEN')
+ADMIN=os.getenv('ADMIN')
+backup=json.load(open("backupQueue.json"))
+
+def isAdmin(user):
+    return user==ADMIN
+
+
+
+@client.event
 async def on_ready():
-    print(f"Logged in as {bot.user.name}({bot.user.id})")
+    print('We have logged in as {0.user}'.format(client))
 
-@bot.command()
-async def ping(ctx):
-    await ctx.send("pong")
+@client.event
+async def on_message(message):
+    print(message)
+    if message.author == client.user:
+        return
 
-if __name__ == "__main__":
-    bot.run(TOKEN)
+    if message.content.startswith('$askHelp'):
+        backup["queue"].append({"author":str(message.author),"id":message.author.mention})
+        json.dump(backup,open("backupQueue.json","w"))
+     
+        await message.channel.send("you've been added to the queue type $show to view it")
+
+    if message.content.startswith('$show'):
+        j=json.load(open("backupQueue.json"))
+        textMessage="**Queue** ```Markdown\n \n"
+        for i,item in enumerate(backup["queue"]):         
+            textMessage+=str(i)+". "+item["author"]+"\n"
+        textMessage+="```"
+        await message.channel.send(textMessage)
+
+    if "$" not in message.content:
+        await message.delete()
+
+    if message.content.startswith("$clear") and isAdmin(str(message.author)):
+        tmp = await message.channel.send('Clearing messages...')
+        async for msg in message.channel.history():
+            await msg.delete()
+        backup["queue"]=[]
+        json.dump(backup,open("backupQueue.json","w"))
+
+    if message.content.startswith("$next") and isAdmin(str(message.author)):
+        backup["queue"].pop(0)
+        await message.channel.send(backup["queue"][0]["id"]+" It is your turn now 👍")
+        json.dump(backup,open("backupQueue.json","w"))
+
+
+client.run(TOKEN)
