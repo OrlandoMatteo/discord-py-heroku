@@ -41,7 +41,7 @@ async def on_message(message):
 
     if message.content.startswith("$clear") and isAdmin(str(message.author)):
         tmp = await message.channel.send('Clearing messages...')
-        async for msg in message.channel.history():
+        async for msg in message.channel.history()[:-1]:
             await msg.delete()
         backup["queue"]=[]
         #json.dump(backup,open("backupQueue.json","w"))
